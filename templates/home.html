@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Frame Analyzer v2</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='theme.css') }}" />
+  </head>
+  <body>
+    <main class="container">
+      <header>
+        <h1>Frame Analyzer v2</h1>
+        <p>Hackathon-friendly frame drop and merge detector.</p>
+      </header>
+
+      <section class="card">
+        <h2>Upload video</h2>
+        <form method="POST" enctype="multipart/form-data" class="upload-form">
+          <input type="file" name="video" accept="video/*" required />
+          <button type="submit">Analyze</button>
+        </form>
+        {% if error %}
+        <p class="error">{{ error }}</p>
+        {% endif %}
+      </section>
+
+      {% if summary %}
+      <section class="card">
+        <h2>Summary</h2>
+        <div class="summary-grid">
+          <div><span>Total Frames</span><strong>{{ summary.total_frames }}</strong></div>
+          <div><span>Drop Events</span><strong>{{ summary.drop_events }}</strong></div>
+          <div><span>Estimated Dropped</span><strong>{{ summary.estimated_dropped_frames }}</strong></div>
+          <div><span>Merge Events</span><strong>{{ summary.merge_events }}</strong></div>
+        </div>
+        {% if csv_url %}
+        <a class="link-btn" href="{{ csv_url }}">Download CSV</a>
+        {% endif %}
+      </section>
+
+      {% if video_url %}
+      <section class="card">
+        <h2>Processed video</h2>
+        <video controls preload="metadata" src="{{ video_url }}"></video>
+      </section>
+      {% endif %}
+
+      {% if graph_url %}
+      <section class="card">
+        <h2>Motion graph</h2>
+        <img src="{{ graph_url }}" alt="Motion graph" />
+      </section>
+      {% endif %}
+
+      <section class="card">
+        <h2>Frame results table (first 100 rows)</h2>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Frame</th>
+                <th>Timestamp (ms)</th>
+                <th>Gap (ms)</th>
+                <th>Motion Diff</th>
+                <th>Drop</th>
+                <th>Dropped Count</th>
+                <th>Merge</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for row in rows %}
+              <tr>
+                <td>{{ row.frame_index }}</td>
+                <td>{{ row.timestamp_ms }}</td>
+                <td>{{ row.gap_ms }}</td>
+                <td>{{ row.motion_diff }}</td>
+                <td>{{ row.is_drop }}</td>
+                <td>{{ row.dropped_count }}</td>
+                <td>{{ row.is_merge }}</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </section>
+      {% endif %}
+    </main>
+  </body>
+</html>
